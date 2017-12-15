@@ -1,0 +1,93 @@
+# Code Created by Edward Tanzer
+# February 2017
+
+Product #
+Price
+5 Star Reviews       
+4 Star Reviews             
+3 Star Reviews            
+2 Star Reviews         
+1 Star Reviews
+Positive Service Review         
+Negative Service Review  
+Would consumer recommend product
+Shipping Weight (lbs)
+Product Depth                       
+Product Width                       
+Product Height
+Profit Margin                     
+Volume
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+trainSet=existing_product_attributes[training_indices,]
+
+testset=new_product_attributes
+
+testset$`Product Type`=NULL
+
+testset$`Best Sellers Rank`=as.numeric(testset$`Best Sellers Rank`)
+
+testset$`Best Sellers Rank`[is.na(testset$`Best Sellers Rank`)]=mean(testset$`Best Sellers Rank`,na.rm = TRUE)
+
+testset$Volume=as.numeric(testset$Volume)
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+trainSet=existing_product_attributes
+
+trainSet$`Product Type`=NULL
+
+trainSet$`Best Sellers Rank`=as.numeric(trainSet$`Best Sellers Rank`)
+
+trainSet$`Best Sellers Rank`[is.na(trainSet$`Best Sellers Rank`)]=mean(trainSet$`Best Sellers Rank`,na.rm = TRUE)
+
+model=lm(formula=trainSet$`Volume` ~.,data=trainSet)
+
+summary(model)
+
+predictions=predict(model, testset, interval="predict", level=.95)
+
+comparison=cbind(testset$`Volume`,predictions[,1])
+
+colnames(comparison)=c("actual", "predicted")
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+mape=(sum(abs(comparison[,1]-comparison[,2])/abs(comparison[,1]))/nrow(comparison))*100
+
+mapeTable=cbind(comparison,abs(comparison[,1] -comparison[,2])/comparison[,1]*100)
+
+colnames(mapeTable)[3]="absolute percent error"
+
+sum(mapeTable[,3]) /nrow(comparison)
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+testPrediction=predict(model,newdata=testset)
+testPrediction
+
+         1          2          3          4          5          6          7          8          9         10         11 
+ 139.63325 -488.91017  131.17230  242.98949  329.86108  -81.11264 1904.40237 -503.38435  -17.64740 1179.04885 8214.52668 
+        12         13         14         15         16         17 
+ 384.95360  255.37966  225.18008  203.28036 1648.22741 -404.80011 
+
+
+ svm_model1=svm(x,data=y)
+\\\\\\\\\\\\\\\\\\\\\\\
+
+newPrediction=predict(model,list(Product #=151,Price=103.85,4 Star Reviews=0,3 Star Reviews=0,2 Star Reviews=0,
+1 Star Reviews=0,Positive Service Review=1,Negative Service Review=3,Would consumer recommend product=0.9,
+Shipping Weight (lbs)=8.00,Product Depth=4.80,Product Width=1.30,Product Height=4.80,
+Profit Margin=0.05,interval="predict",level=.95)
+
+\\\\\\\\\\\\\\\\
+
+rf=randomForest(4 Star Reviews~Volume,data=trainSet,ntree=600,importance=TRUE)
+
+rf=randomForest(`Volume`,y=NULL,data=existing_test,nodesize=2,mtry=20,ntree=2)
+
+rf=randomForest(trainSet$`4 Star Reviews`~trainSet$Volume,data = trainSet,ntree=600,importance=TRUE)
+
+rf$importance
+
+plot(rf,log="y")
+

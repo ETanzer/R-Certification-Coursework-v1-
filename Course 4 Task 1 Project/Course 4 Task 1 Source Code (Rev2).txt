@@ -1,0 +1,312 @@
+# Created by Edward Tanzer
+# June 2017
+
+# R package selection 
+
+library("ggplot2", lib.loc="~/R/win-library/3.3")
+
+library("dplyr", lib.loc="~/R/win-library/3.3")
+
+library("tidyr", lib.loc="~/R/win-library/3.3")
+
+library("lubridate", lib.loc="~/R/win-library/3.3")
+
+Housedata=household_power_consumption_CSV_
+
+Housedata = na.omit(Housedata)
+
+Housedata$Time=format(strptime(Housedata$Time, '%H:%M:%S'), '%I:%M %p')
+
+Housedata = cbind(Housedata, paste(Housedata$Date,Housedata$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata)[10] = "DateTime"
+
+Housedata = Housedata[,c(ncol(Housedata), 1:(ncol(Housedata)-1))]
+
+Housedata$DateTime = dmy_hm(Housedata$DateTime,quiet = FALSE, tz = "UTC", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata=aggregate(Housedata, list(cut(Housedata$DateTime,breaks = "15 min")),FUN = head,1)
+
+Housedata$Group.1=NULL
+
+Housedata$DateTime=NULL
+
+Housedata = cbind(Housedata, paste(Housedata$Date,Housedata$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata)[10] = "DateTime"
+
+Housedata = Housedata[,c(ncol(Housedata), 1:(ncol(Housedata)-1))]
+
+Housedata$DateTime = dmy_hm(Housedata$DateTime,quiet = FALSE, tz = "UTC", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Year1 = filter(Housedata,DateTime >="2006-12-16" & DateTime<= "2007-12-16")
+
+Year2 = filter(Housedata,DateTime >="2007-12-17" & DateTime<= "2008-12-16")
+
+Year2 = filter(Housedata,DateTime >="2007-12-17" & DateTime<= "2008-12-17")
+
+Year3 = filter(Housedata,DateTime >="2008-12-18" & DateTime<= "2009-12-18")
+
+Year4 = filter(Housedata,DateTime >="2008-12-19" & DateTime<= "2010-12-19")
+
+summary(Year1)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2006-12-16 17:24:00   Length:34739       Length:34739       Min.   :0.084       Min.   :0.0000       
+ 1st Qu.:2007-03-17 04:31:30   Class :character   Class :character   1st Qu.:0.279       1st Qu.:0.0000       
+ Median :2007-06-18 05:54:00   Mode  :character   Mode  :character   Median :0.502       Median :0.1000       
+ Mean   :2007-06-17 07:51:24                                         Mean   :1.124       Mean   :0.1189       
+ 3rd Qu.:2007-09-16 18:46:30                                         3rd Qu.:1.562       3rd Qu.:0.1860       
+ Max.   :2007-12-16 05:54:00                                         Max.   :9.392       Max.   :1.0400       
+    Voltage      Global_intensity Sub_metering_1   Sub_metering_2   Sub_metering_3 
+ Min.   :224.8   Min.   : 0.400   Min.   : 0.000   Min.   : 0.000   Min.   : 0.00  
+ 1st Qu.:236.9   1st Qu.: 1.200   1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 0.00  
+ Median :239.7   Median : 2.400   Median : 0.000   Median : 0.000   Median : 0.00  
+ Mean   :239.4   Mean   : 4.798   Mean   : 1.222   Mean   : 1.627   Mean   : 5.74  
+ 3rd Qu.:241.8   3rd Qu.: 6.600   3rd Qu.: 0.000   3rd Qu.: 1.000   3rd Qu.:17.00  
+ Max.   :251.5   Max.   :41.400   Max.   :78.000   Max.   :75.000   Max.   :20.00
+
+summary(Year2)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2007-12-17 06:09:00   Length:35130       Length:35130       Min.   : 0.078      Min.   :0.0000       
+ 1st Qu.:2008-03-17 17:42:45   Class :character   Class :character   1st Qu.: 0.302      1st Qu.:0.0460       
+ Median :2008-06-17 05:16:30   Mode  :character   Mode  :character   Median : 0.580      Median :0.0960       
+ Mean   :2008-06-17 05:21:55                                         Mean   : 1.094      Mean   :0.1178       
+ 3rd Qu.:2008-09-16 16:50:15                                         3rd Qu.: 1.532      3rd Qu.:0.1860       
+ Max.   :2008-12-17 05:54:00                                         Max.   :10.290      Max.   :1.0160       
+    Voltage      Global_intensity Sub_metering_1  Sub_metering_2   Sub_metering_3  
+ Min.   :226.0   Min.   : 0.200   Min.   : 0.00   Min.   : 0.000   Min.   : 0.000  
+ 1st Qu.:238.9   1st Qu.: 1.400   1st Qu.: 0.00   1st Qu.: 0.000   1st Qu.: 0.000  
+ Median :240.6   Median : 2.600   Median : 0.00   Median : 0.000   Median : 1.000  
+ Mean   :240.6   Mean   : 4.642   Mean   : 1.16   Mean   : 1.302   Mean   : 6.109  
+ 3rd Qu.:242.5   3rd Qu.: 6.400   3rd Qu.: 0.00   3rd Qu.: 1.000   3rd Qu.:17.000  
+ Max.   :252.1   Max.   :44.600   Max.   :79.00   Max.   :76.000   Max.   :31.000 
+
+summary(Year3)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2008-12-18 06:09:00   Length:34761       Length:34761       Min.   : 0.122      Min.   :0.0000       
+ 1st Qu.:2009-03-18 19:09:00   Class :character   Class :character   1st Qu.: 0.318      1st Qu.:0.0500       
+ Median :2009-06-19 14:24:00   Mode  :character   Mode  :character   Median : 0.604      Median :0.1040       
+ Mean   :2009-06-18 16:39:51                                         Mean   : 1.069      Mean   :0.1293       
+ 3rd Qu.:2009-09-18 17:24:00                                         3rd Qu.: 1.508      3rd Qu.:0.2020       
+ Max.   :2009-12-18 05:54:00                                         Max.   :11.122      Max.   :1.0800       
+    Voltage      Global_intensity Sub_metering_1   Sub_metering_2   Sub_metering_3  
+ Min.   :225.7   Min.   : 0.400   Min.   : 0.000   Min.   : 0.000   Min.   : 0.000  
+ 1st Qu.:240.1   1st Qu.: 1.400   1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 0.000  
+ Median :241.8   Median : 2.600   Median : 0.000   Median : 0.000   Median : 1.000  
+ Mean   :241.8   Mean   : 4.517   Mean   : 1.128   Mean   : 1.125   Mean   : 6.693  
+ 3rd Qu.:243.5   3rd Qu.: 6.200   3rd Qu.: 0.000   3rd Qu.: 1.000   3rd Qu.:18.000  
+ Max.   :253.4   Max.   :48.400   Max.   :80.000   Max.   :76.000   Max.   :31.000 
+
+summary(Year4)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2008-12-19 06:09:00   Length:66481       Length:66481       Min.   : 0.122      Min.   :0.0000       
+ 1st Qu.:2009-06-10 09:39:00   Class :character   Class :character   1st Qu.: 0.326      1st Qu.:0.0520       
+ Median :2009-12-03 09:54:00   Mode  :character   Mode  :character   Median : 0.664      Median :0.1020       
+ Mean   :2009-12-05 01:16:29                                         Mean   : 1.073      Mean   :0.1292       
+ 3rd Qu.:2010-05-29 02:39:00                                         3rd Qu.: 1.516      3rd Qu.:0.2000       
+ Max.   :2010-11-26 20:54:00                                         Max.   :11.122      Max.   :1.0940       
+    Voltage      Global_intensity Sub_metering_1   Sub_metering_2   Sub_metering_3  
+ Min.   :225.3   Min.   : 0.400   Min.   : 0.000   Min.   : 0.000   Min.   : 0.000  
+ 1st Qu.:240.0   1st Qu.: 1.400   1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 0.000  
+ Median :241.7   Median : 2.800   Median : 0.000   Median : 0.000   Median : 1.000  
+ Mean   :241.7   Mean   : 4.528   Mean   : 1.085   Mean   : 1.121   Mean   : 6.995  
+ 3rd Qu.:243.5   3rd Qu.: 6.200   3rd Qu.: 0.000   3rd Qu.: 1.000   3rd Qu.:18.000  
+ Max.   :253.4   Max.   :48.400   Max.   :88.000   Max.   :79.000   Max.   :31.000  
+
+summary(Housedata)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2006-12-16 17:24:00   Length:136638      Length:136638      Min.   : 0.078      Min.   :0.0000       
+ 1st Qu.:2007-12-10 05:12:45   Class :character   Class :character   1st Qu.: 0.308      1st Qu.:0.0480       
+ Median :2008-11-30 01:31:30   Mode  :character   Mode  :character   Median : 0.602      Median :0.1000       
+ Mean   :2008-12-02 00:49:31                                         Mean   : 1.092      Mean   :0.1236       
+ 3rd Qu.:2009-11-23 20:05:15                                         3rd Qu.: 1.528      3rd Qu.:0.1940       
+ Max.   :2010-11-26 20:54:00                                         Max.   :11.122      Max.   :1.0940       
+    Voltage      Global_intensity Sub_metering_1   Sub_metering_2   Sub_metering_3 
+ Min.   :224.8   Min.   : 0.20    Min.   : 0.000   Min.   : 0.000   Min.   : 0.00  
+ 1st Qu.:239.0   1st Qu.: 1.40    1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 0.00  
+ Median :241.0   Median : 2.60    Median : 0.000   Median : 0.000   Median : 1.00  
+ Mean   :240.8   Mean   : 4.63    Mean   : 1.141   Mean   : 1.295   Mean   : 6.45  
+ 3rd Qu.:242.9   3rd Qu.: 6.40    3rd Qu.: 0.000   3rd Qu.: 1.000   3rd Qu.:17.00  
+ Max.   :253.4   Max.   :48.40    Max.   :88.000   Max.   :79.000   Max.   :31.00  
+
+
+
+
+House2006=filter(Housedata,DateTime >= "2006-01-01" & DateTime <="2006-12-31")
+ 
+House2007=filter(Housedata,DateTime >= "2007-01-01" & DateTime <="2007-12-31")
+
+House2008=filter(Housedata,DateTime >= "2008-01-01" & DateTime <="2008-12-31")
+
+House2009=filter(Housedata,DateTime >= "2009-01-01" & DateTime <="2009-12-31")
+
+House2010=filter(Housedata,DateTime >= "2010-01-01" & DateTime <="2010-12-31")
+
+summary(House2006)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2006-12-16 17:24:00   Length:1395        Length:1395        Min.   :0.196       Min.   :0.0000       
+ 1st Qu.:2006-12-20 08:31:30   Class :character   Class :character   1st Qu.:0.477       1st Qu.:0.0460       
+ Median :2006-12-23 23:39:00   Mode  :character   Mode  :character   Median :1.600       Median :0.1160       
+ Mean   :2006-12-23 23:39:00                                         Mean   :1.862       Mean   :0.1336       
+ 3rd Qu.:2006-12-27 14:46:30                                         3rd Qu.:2.633       3rd Qu.:0.1960       
+ Max.   :2006-12-31 05:54:00                                         Max.   :8.334       Max.   :0.7940       
+    Voltage      Global_intensity Sub_metering_1   Sub_metering_2   Sub_metering_3  
+ Min.   :229.3   Min.   : 0.800   Min.   : 0.000   Min.   : 0.000   Min.   : 0.000  
+ 1st Qu.:238.9   1st Qu.: 2.200   1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 0.000  
+ Median :241.8   Median : 6.800   Median : 0.000   Median : 0.000   Median : 0.000  
+ Mean   :241.6   Mean   : 7.871   Mean   : 1.389   Mean   : 2.391   Mean   : 7.536  
+ 3rd Qu.:244.6   3rd Qu.:11.000   3rd Qu.: 0.000   3rd Qu.: 1.000   3rd Qu.:17.000  
+ Max.   :251.5   Max.   :35.000   Max.   :77.000   Max.   :73.000   Max.   :19.000
+
+summary(House2007)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2007-01-01 06:09:00   Length:34688       Length:34688       Min.   :0.084       Min.   :0.0000       
+ 1st Qu.:2007-04-01 14:05:15   Class :character   Class :character   1st Qu.:0.278       1st Qu.:0.0000       
+ Median :2007-07-03 12:16:30   Mode  :character   Mode  :character   Median :0.498       Median :0.1000       
+ Mean   :2007-07-02 16:56:52                                         Mean   :1.115       Mean   :0.1177       
+ 3rd Qu.:2007-10-01 21:57:45                                         3rd Qu.:1.546       3rd Qu.:0.1860       
+ Max.   :2007-12-31 05:54:00                                         Max.   :9.392       Max.   :1.0400       
+    Voltage      Global_intensity Sub_metering_1   Sub_metering_2   Sub_metering_3  
+ Min.   :224.8   Min.   : 0.400   Min.   : 0.000   Min.   : 0.000   Min.   : 0.000  
+ 1st Qu.:237.0   1st Qu.: 1.200   1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 0.000  
+ Median :239.8   Median : 2.400   Median : 0.000   Median : 0.000   Median : 0.000  
+ Mean   :239.4   Mean   : 4.758   Mean   : 1.247   Mean   : 1.618   Mean   : 5.785  
+ 3rd Qu.:241.8   3rd Qu.: 6.400   3rd Qu.: 0.000   3rd Qu.: 1.000   3rd Qu.:17.000  
+ Max.   :252.1   Max.   :41.400   Max.   :78.000   Max.   :76.000   Max.   :20.000  
+
+summary(House2008)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2008-01-01 06:09:00   Length:35034       Length:35034       Min.   : 0.078      Min.   :0.0000       
+ 1st Qu.:2008-04-01 11:42:45   Class :character   Class :character   1st Qu.: 0.300      1st Qu.:0.0460       
+ Median :2008-07-01 17:16:30   Mode  :character   Mode  :character   Median : 0.560      Median :0.0940       
+ Mean   :2008-07-01 17:25:24                                         Mean   : 1.070      Mean   :0.1171       
+ 3rd Qu.:2008-09-30 22:50:15                                         3rd Qu.: 1.514      3rd Qu.:0.1840       
+ Max.   :2008-12-31 05:54:00                                         Max.   :10.290      Max.   :1.0160       
+    Voltage      Global_intensity Sub_metering_1   Sub_metering_2  Sub_metering_3  
+ Min.   :226.0   Min.   : 0.200   Min.   : 0.000   Min.   : 0.00   Min.   : 0.000  
+ 1st Qu.:238.9   1st Qu.: 1.400   1st Qu.: 0.000   1st Qu.: 0.00   1st Qu.: 0.000  
+ Median :240.7   Median : 2.400   Median : 0.000   Median : 0.00   Median : 1.000  
+ Mean   :240.7   Mean   : 4.543   Mean   : 1.124   Mean   : 1.26   Mean   : 6.008  
+ 3rd Qu.:242.5   3rd Qu.: 6.400   3rd Qu.: 0.000   3rd Qu.: 1.00   3rd Qu.:17.000  
+ Max.   :250.8   Max.   :44.600   Max.   :79.000   Max.   :75.00   Max.   :31.000
+
+summary(House2009)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2009-01-01 06:09:00   Length:34665       Length:34665       Min.   : 0.122      Min.   :0.0000       
+ 1st Qu.:2009-04-01 13:09:00   Class :character   Class :character   1st Qu.: 0.318      1st Qu.:0.0520       
+ Median :2009-07-03 02:24:00   Mode  :character   Mode  :character   Median : 0.618      Median :0.1060       
+ Mean   :2009-07-02 07:16:05                                         Mean   : 1.077      Mean   :0.1309       
+ 3rd Qu.:2009-10-01 23:24:00                                         3rd Qu.: 1.512      3rd Qu.:0.2040       
+ Max.   :2009-12-31 05:54:00                                         Max.   :11.122      Max.   :1.0800       
+    Voltage      Global_intensity Sub_metering_1   Sub_metering_2   Sub_metering_3  
+ Min.   :225.7   Min.   : 0.400   Min.   : 0.000   Min.   : 0.000   Min.   : 0.000  
+ 1st Qu.:240.1   1st Qu.: 1.400   1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 0.000  
+ Median :241.9   Median : 2.800   Median : 0.000   Median : 0.000   Median : 1.000  
+ Mean   :241.9   Mean   : 4.549   Mean   : 1.163   Mean   : 1.131   Mean   : 6.786  
+ 3rd Qu.:243.6   3rd Qu.: 6.200   3rd Qu.: 0.000   3rd Qu.: 1.000   3rd Qu.:18.000  
+ Max.   :253.4   Max.   :48.400   Max.   :80.000   Max.   :76.000   Max.   :31.000
+
+summary(House2010)
+    DateTime                       Date               Time           Global_active_power Global_reactive_power
+ Min.   :2010-01-01 06:09:00   Length:30472       Length:30472       Min.   :0.138       Min.   :0.0000       
+ 1st Qu.:2010-03-25 04:20:15   Class :character   Class :character   1st Qu.:0.336       1st Qu.:0.0540       
+ Median :2010-06-12 12:46:30   Mode  :character   Mode  :character   Median :0.706       Median :0.1000       
+ Mean   :2010-06-14 06:02:43                                         Mean   :1.062       Mean   :0.1292       
+ 3rd Qu.:2010-09-04 21:27:45                                         3rd Qu.:1.514       3rd Qu.:0.2000       
+ Max.   :2010-11-26 20:54:00                                         Max.   :9.630       Max.   :1.0940       
+    Voltage      Global_intensity Sub_metering_1  Sub_metering_2   Sub_metering_3  
+ Min.   :225.3   Min.   : 0.600   Min.   : 0.00   Min.   : 0.000   Min.   : 0.000  
+ 1st Qu.:239.8   1st Qu.: 1.400   1st Qu.: 0.00   1st Qu.: 0.000   1st Qu.: 1.000  
+ Median :241.5   Median : 3.000   Median : 0.00   Median : 0.000   Median : 1.000  
+ Mean   :241.5   Mean   : 4.481   Mean   : 1.01   Mean   : 1.111   Mean   : 7.239  
+ 3rd Qu.:243.2   3rd Qu.: 6.200   3rd Qu.: 0.00   3rd Qu.: 1.000   3rd Qu.:18.000  
+ Max.   :252.9   Max.   :42.800   Max.   :88.00   Max.   :79.000   Max.   :31.000 
+
+\\\\\\\\\\\\\\\\\\\\\\\\\
+
+Fall2006=filter(Housedata,DateTime >= "2006-09-23" & DateTime <= "2006-12-21")
+
+Fall2007=filter(Housedata,DateTime >= "2007-09-23" & DateTime <= "2007-12-21")
+
+Fall2008=filter(Housedata,DateTime >= "2008-09-23" & DateTime <= "2008-12-21")
+
+Fall2009=filter(Housedata,DateTime >= "2009-09-23" & DateTime <= "2009-12-21")
+
+Fall2010=filter(Housedata,DateTime >= "2010-09-23" & DateTime <= "2010-12-21")
+
+testing=full_join(Fall2006,Fall2007)
+
+testing2=full_join(Fall2008,Fall2009)
+
+testing3=full_join(testing,testing2)
+
+testing=full_join(testing3,Fall2010)
+
+FallData=testing
+
+View(FallData)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+Winter2006=filter(Housedata,DateTime >= "2006-12-22" & DateTime <= "2007-3-19")
+
+Winter2007=filter(Housedata,DateTime >= "2007-12-22" & DateTime <= "2008-3-19")
+
+Winter2008=filter(Housedata,DateTime >= "2008-12-22" & DateTime <= "2009-3-19")
+
+Winter2009=filter(Housedata,DateTime >= "2009-12-22" & DateTime <= "2010-3-19")
+
+Winter2010=filter(Housedata,DateTime >= "2010-12-22" & DateTime <= "2010-12-31")
+
+testing=full_join(Winter2006,Winter2007)
+
+testing2=full_join(Winter2008,Winter2009)
+
+testing3=full_join(testing,testing2)
+
+testing=full_join(testing3,Winter2010)
+
+WinterData=testing
+
+View(WinterData)
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+Spring2007=filter(Housedata,DateTime >= "2007-3-20" & DateTime <= "2007-6-20")
+
+Spring2008=filter(Housedata,DateTime >= "2008-3-20" & DateTime <= "2008-6-20")
+
+Spring2009=filter(Housedata,DateTime >= "2009-3-20" & DateTime <= "2009-6-20")
+
+Spring2010=filter(Housedata,DateTime >= "2010-3-20" & DateTime <= "2010-6-20")
+
+testing=full_join(Spring2007,Spring2008)
+
+testing2=full_join(Spring2009,Spring2010)
+
+testing3=full_join(testing,testing2)
+
+SpringData=testing3
+
+View(SpringData)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+Summer2007=filter(Housedata,DateTime >= "2007-6-21" & DateTime <= "2007-9-22")
+
+Summer2008=filter(Housedata,DateTime >= "2008-6-21" & DateTime <= "2008-9-22")
+
+Summer2009=filter(Housedata,DateTime >= "2009-6-21" & DateTime <= "2009-9-22")
+
+Summer2010=filter(Housedata,DateTime >= "2010-6-21" & DateTime <= "2010-9-22")
+
+testing=full_join(Summer2007,Summer2008)
+
+testing2=full_join(Summer2009,Summer2010)
+
+testing3=full_join(testing,testing2)
+
+SummerData=testing3
+
+View(SummerData)

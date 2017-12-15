@@ -1,0 +1,301 @@
+#ts_PowerCon_Year2008_2009
+
+year2008_2009 = filter(Housedata_24HR_Break,DateTime >= "2008-01-01" & DateTime <="2009-12-31 23:59")
+
+View(year2008_2009)
+
+ts_PowerCon_Year2008_2009 = ts(year2008_2009$Power_con, start=c(2008,1),end=c(2010,1),frequency =365)
+
+plot.ts(ts_PowerCon_Year2008_2009)
+
+View(ts_PowerCon_Year2008_2009)
+
+powerconForecasts = HoltWinters(ts_PowerCon_Year2008_2009,beta = FALSE,gamma = FALSE)
+
+powercon.pred = predict(powerconForecasts,n.ahead = 10,prediction.interval = TRUE)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\
+
+sept_2008_2009 = filter(Housedata_24HR_Break,DateTime >= "2008-09-01" & DateTime <="2009-09-30 23:59")
+
+ts_PowerCon_Sept_2008_2009 = ts(sept_2008_2009$Power_con, start=c(2008,9),end=c(2009,10),frequency =365)
+
+plot.ts(ts_PowerCon_Sept_2008_2009)
+
+View(ts_PowerCon_Sept_2008_2009)
+
+powerconForecasts = HoltWinters(ts_PowerCon_Sept_2008_2009,beta = FALSE,gamma = FALSE)
+
+powercon.pred = predict(powerconForecasts,n.ahead = 10,prediction.interval = TRUE)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+ts_PowerCon_CW = ts(CW2008_2009$Power_con, start=c(2008,9),end=c(2009,10),frequency =12)
+
+plot.ts(ts_PowerCon_CW)
+
+View(ts_PowerCon_CW)
+
+powconForecastv1 = HoltWinters(ts_PowerCon_CW,beta = FALSE,gamma = FALSE)
+
+powconPredv1 = predict(powconForecastv1,n.ahead = 1,prediction.interval = TRUE)
+
+plot.ts(ts_PowerCon_CW,xlim=c(1,14))
+lines(powconForecastv1$fitted[,1], col="green")
+lines(powconPredv1[,1],col="blue")
+lines(powconPredv1[,2],col="red")
+lines(powconPredv1[,3],col="red")
+
+#or....
+
+plot.ts(ts_PowerCon_CW,xlim=c(2008.6,2010))
+lines(powconForecastv1$fitted[,1], col="green")
+lines(powconPredv1[,1],col="blue")
+lines(powconPredv1[,2],col="red")
+lines(powconPredv1[,3],col="red")
+
+
+
+
+
+
+
+
+
+
+
+
+logPowerCon = log(ts_PowerCon_June2008_2009)
+
+powerconForecasts2 = HoltWinters(logPowerCon)
+
+powerconForecasts2 
+
+
+
+
+
+
+
+
+
+
+
+\\\\\\\\\\\\\\\\\\\\\\\
+
+#ts_Submet1_Year2008_2009
+
+year2008_2009 = filter(Housedata_12HR_Break,DateTime >= "2008-01-01" & DateTime <="2009-12-31 23:59")
+
+View(year2008_2009)
+
+ts_Submet1_Year2008_2009 = ts(year2008_2009$Sub_metering_1, start=c(2008,1),end=c(2010,1),frequency =2192)
+
+plot.ts(ts_Submet1_Year2008_2009)
+
+View(ts_Submet1_Year2008_2009)
+
+decompose(ts_Submet1_Year2008_2009)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#ts_Submet2_Year2008_2009
+
+year2008_2009 = filter(Housedata_6HR_Break,DateTime >= "2008-01-01" & DateTime <="2009-12-31 23:59")
+
+View(year2008_2009)
+
+ts_Submet2_Year2008_2009 = ts(year2008_2009$Sub_metering_2, start=c(2008,1),end=c(2010,1),frequency =2192)
+
+plot.ts(ts_Submet2_Year2008_2009)
+
+View(ts_Submet2_Year2008_2009)
+
+decompose(ts_Submet2_Year2008_2009)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#ts_Submet3_Year2008_2009
+
+year2008_2009 = filter(Housedata_6HR_Break,DateTime >= "2008-01-01" & DateTime <="2009-12-31 23:59")
+
+View(year2008_2009)
+
+ts_Submet3_Year2008_2009 = ts(year2008_2009$Sub_metering_3, start=c(2008,1),end=c(2010,1),frequency =2192)
+
+plot.ts(ts_Submet3_Year2008_2009)
+
+View(ts_Submet3_Year2008_2009)
+
+decompose(ts_Submet3_Year2008_2009)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+
+
+
+
+
+
+\\\\\\\\\\\\\\\\\\\
+\\\\\\\\\\\\\\\\\\\\\
+
+Housedata_6HR_Break=household_power_consumption_CSV_
+
+Housedata_6HR_Break = na.omit(Housedata_6HR_Break)
+
+Housedata_6HR_Break$Time=format(strptime(Housedata_6HR_Break$Time, '%H:%M:%S'), '%I:%M %p')
+
+Housedata_6HR_Break = cbind(Housedata_6HR_Break, paste(Housedata_6HR_Break$Date,Housedata_6HR_Break$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata_6HR_Break)[10] = "DateTime"
+
+Housedata_6HR_Break = Housedata_6HR_Break[,c(ncol(Housedata_6HR_Break), 1:(ncol(Housedata_6HR_Break)-1))]
+
+Housedata_6HR_Break$DateTime = dmy_hm(Housedata_6HR_Break$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata_6HR_Break=aggregate(Housedata_6HR_Break, list(cut(Housedata_6HR_Break$DateTime,breaks = "6 hour")),FUN = head,1) 
+
+Housedata_6HR_Break$Group.1=NULL
+
+Housedata_6HR_Break$DateTime=NULL
+
+Housedata_6HR_Break = cbind(Housedata_6HR_Break, paste(Housedata_6HR_Break$Date,Housedata_6HR_Break$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata_6HR_Break)[10] = "DateTime"
+
+Housedata_6HR_Break = Housedata_6HR_Break[,c(ncol(Housedata_6HR_Break), 1:(ncol(Housedata_6HR_Break)-1))]
+
+Housedata_6HR_Break$DateTime = dmy_hm(Housedata_6HR_Break$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata_6HR_Break$Power_con = ((Housedata_6HR_Break$Global_active_power*1000)/60) - (Housedata_6HR_Break$Sub_metering_1 + Housedata_6HR_Break$Sub_metering_2 + Housedata_6HR_Break$Sub_metering_3)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+Housedata_8HR_Break=household_power_consumption_CSV_
+
+Housedata_8HR_Break = na.omit(Housedata_8HR_Break)
+
+Housedata_8HR_Break$Time=format(strptime(Housedata_8HR_Break$Time, '%H:%M:%S'), '%I:%M %p')
+
+Housedata_8HR_Break = cbind(Housedata_8HR_Break, paste(Housedata_8HR_Break$Date,Housedata_8HR_Break$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata_8HR_Break)[10] = "DateTime"
+
+Housedata_8HR_Break = Housedata_8HR_Break[,c(ncol(Housedata_8HR_Break), 1:(ncol(Housedata_8HR_Break)-1))]
+
+Housedata_8HR_Break$DateTime = dmy_hm(Housedata_8HR_Break$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata_8HR_Break=aggregate(Housedata_8HR_Break, list(cut(Housedata_8HR_Break$DateTime,breaks = "8 hour")),FUN = head,1) 
+
+Housedata_8HR_Break$Group.1=NULL
+
+Housedata_8HR_Break$DateTime=NULL
+
+Housedata_8HR_Break = cbind(Housedata_8HR_Break, paste(Housedata_8HR_Break$Date,Housedata_8HR_Break$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata_8HR_Break)[10] = "DateTime"
+
+Housedata_8HR_Break = Housedata_8HR_Break[,c(ncol(Housedata_8HR_Break), 1:(ncol(Housedata_8HR_Break)-1))]
+
+Housedata_8HR_Break$DateTime = dmy_hm(Housedata_8HR_Break$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata_8HR_Break$Power_con = ((Housedata_8HR_Break$Global_active_power*1000)/60) - (Housedata_8HR_Break$Sub_metering_1 + Housedata_8HR_Break$Sub_metering_2 + Housedata_8HR_Break$Sub_metering_3)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+Housedata_12HR_Break=household_power_consumption_CSV_
+
+Housedata_12HR_Break = na.omit(Housedata_12HR_Break)
+
+Housedata_12HR_Break$Time=format(strptime(Housedata_12HR_Break$Time, '%H:%M:%S'), '%I:%M %p')
+
+Housedata_12HR_Break = cbind(Housedata_12HR_Break, paste(Housedata_12HR_Break$Date,Housedata_12HR_Break$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata_12HR_Break)[10] = "DateTime"
+
+Housedata_12HR_Break = Housedata_12HR_Break[,c(ncol(Housedata_12HR_Break), 1:(ncol(Housedata_12HR_Break)-1))]
+
+Housedata_12HR_Break$DateTime = dmy_hm(Housedata_12HR_Break$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata_12HR_Break=aggregate(Housedata_12HR_Break, list(cut(Housedata_12HR_Break$DateTime,breaks = "12 hour")),FUN = head,1) 
+
+Housedata_12HR_Break$Group.1=NULL
+
+Housedata_12HR_Break$DateTime=NULL
+
+Housedata_12HR_Break = cbind(Housedata_12HR_Break, paste(Housedata_12HR_Break$Date,Housedata_12HR_Break$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata_12HR_Break)[10] = "DateTime"
+
+Housedata_12HR_Break = Housedata_12HR_Break[,c(ncol(Housedata_12HR_Break), 1:(ncol(Housedata_12HR_Break)-1))]
+
+Housedata_12HR_Break$DateTime = dmy_hm(Housedata_12HR_Break$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata_12HR_Break$Power_con = ((Housedata_12HR_Break$Global_active_power*1000)/60) - (Housedata_12HR_Break$Sub_metering_1 + Housedata_12HR_Break$Sub_metering_2 + Housedata_12HR_Break$Sub_metering_3)
+
+\\\\\\\\\\\\\\\\\\\\\
+\\\\\\\\\\\\\\\\\\\\\
+
+Housedata_24HR_Break=household_power_consumption_CSV_
+
+Housedata_24HR_Break = na.omit(Housedata_24HR_Break)
+
+Housedata_24HR_Break$Time=format(strptime(Housedata_24HR_Break$Time, '%H:%M:%S'), '%I:%M %p')
+
+Housedata_24HR_Break = cbind(Housedata_24HR_Break, paste(Housedata_24HR_Break$Date,Housedata_24HR_Break$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata_24HR_Break)[10] = "DateTime"
+
+Housedata_24HR_Break = Housedata_24HR_Break[,c(ncol(Housedata_24HR_Break), 1:(ncol(Housedata_24HR_Break)-1))]
+
+Housedata_24HR_Break$DateTime = dmy_hm(Housedata_24HR_Break$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata_24HR_Break=aggregate(Housedata_24HR_Break, list(cut(Housedata_24HR_Break$DateTime,breaks = "24 hour")),FUN = head,1) 
+
+Housedata_24HR_Break$Group.1=NULL
+
+Housedata_24HR_Break$DateTime=NULL
+
+Housedata_24HR_Break = cbind(Housedata_24HR_Break, paste(Housedata_24HR_Break$Date,Housedata_24HR_Break$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata_24HR_Break)[10] = "DateTime"
+
+Housedata_24HR_Break = Housedata_24HR_Break[,c(ncol(Housedata_24HR_Break), 1:(ncol(Housedata_24HR_Break)-1))]
+
+Housedata_24HR_Break$DateTime = dmy_hm(Housedata_24HR_Break$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata_24HR_Break$Power_con = ((Housedata_24HR_Break$Global_active_power*1000)/60) - (Housedata_24HR_Break$Sub_metering_1 + Housedata_24HR_Break$Sub_metering_2 + Housedata_24HR_Break$Sub_metering_3)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+Housedata=household_power_consumption_CSV_
+
+Housedata = na.omit(Housedata)
+
+Housedata$Time=format(strptime(Housedata$Time, '%H:%M:%S'), '%I:%M %p')
+
+Housedata = cbind(Housedata, paste(Housedata$Date,Housedata$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata)[10] = "DateTime"
+
+Housedata = Housedata[,c(ncol(Housedata), 1:(ncol(Housedata)-1))]
+
+Housedata$DateTime = dmy_hm(Housedata$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata=aggregate(Housedata, list(cut(Housedata$DateTime,breaks = "15 min")),FUN = head,1) 
+
+Housedata$Group.1=NULL
+
+Housedata$DateTime=NULL
+
+Housedata = cbind(Housedata, paste(Housedata$Date,Housedata$Time), stringsAsFactors=FALSE)
+
+colnames(Housedata)[10] = "DateTime"
+
+Housedata = Housedata[,c(ncol(Housedata), 1:(ncol(Housedata)-1))]
+
+Housedata$DateTime = dmy_hm(Housedata$DateTime,quiet = FALSE, tz = "America/Chicago", locale = Sys.getlocale("LC_TIME"),truncated = 0)
+
+Housedata$Power_con = ((Housedata$Global_active_power*1000)/60) - (Housedata$Sub_metering_1 + Housedata$Sub_metering_2 + Housedata$Sub_metering_3)

@@ -1,0 +1,690 @@
+# Created by Edward Tanzer
+# April 2017
+
+str(iPhoneLargeMatrix)
+
+summary(iPhoneLargeMatrix)
+
+iPhoneData=iPhoneLargeMatrix
+
+iPhoneData=iPhoneData[order(iPhoneData$iphoneSentiment),]
+
+iPhoneData=iPhoneData[,3:60]
+
+iPhone_matrix=data.matrix(iPhoneData)
+
+iPhone_heatmap=heatmap(iPhone_matrix,Rowv = NA,Colv = NA,col=cm.colors(256),scale = "column",margins = c(5,10))
+
+corrplot(cor(iPhone_matrix), order ="hclust")
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+iPhonetrain=createDataPartition(y=iPhoneLargeMatrix$iphoneSentiment, p=.75,list = FALSE)
+
+iPhonetraining=iPhoneLargeMatrix[iPhonetrain,]
+
+iPhonetesting=iPhoneLargeMatrix[-iPhonetrain,]
+
+fitControl=trainControl(method = "repeatedcv",number=10, repeats = 10)
+
+iPhoneforest=train(iphoneSentiment~.,data=iPhonetraining,method = "rf",trControl=fitControl,ntree=200)
+
+iphonedisc1 = discretize(iPhoneLargeMatrix$iphoneSentiment, "fixed", categories= c(-Inf, -50, -10, -1, 1, 10, 50, Inf))
+
+summary(iphonedisc1)
+
+iPhoneLargeMatrix$iphoneSentiment=iphonedisc1
+
+str(iPhoneLargeMatrix)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+galaxydisc1=discretize(GalaxyLargeMatrix$galaxySentiment, "fixed", categories= c(-Inf, -50, -10, -1, 1, 10, 50, Inf))
+
+summary(galaxydisc1)
+
+GalaxyLargeMatrix$galaxySentiment=galaxydisc1
+
+str(GalaxyLargeMatrix)
+
+\\\\\\\\\\\\\\\\\\\\
+
+set.seed(123)
+
+index=sample(1:nrow(iPhoneLargeMatrix),4000,replace = FALSE)
+
+iPhoneLargeMatrix[index,]
+
+iphone4k=iPhoneLargeMatrix[index,]
+
+iphonetrain=createDataPartition(y=iphone4k$iphoneSentiment, p=.70,list = FALSE)
+
+iphone4ktraining=iphone4k[iphonetrain,]
+
+iphone4ktesting=iphone4k[-iphonetrain,]
+
+\\\\\\\\\\\\\\\\\\\\\\
+
+index=sample(1:nrow(GalaxyLargeMatrix),4000,replace = FALSE)
+
+GalaxyLargeMatrix[index,]
+
+galaxy4k=GalaxyLargeMatrix[index,]
+
+galaxytrain=createDataPartition(y=galaxy4k$galaxySentiment, p=.70,list = FALSE)
+
+galaxy4ktraining=galaxy4k[galaxytrain,]
+
+galaxy4ktesting=galaxy4k[-galaxytrain,]
+
+\\\\\\\\\\\\\\\\\\\\\
+
+#kNN classifier
+
+ctrl2=trainControl(method = "repeatedcv",number=10, repeats = 10)
+
+iphoneknn=train(iphoneSentiment ~., data = iphone4ktraining, method="knn", trControl=ctrl2,preProcess=c("center","scale"),tuneLength=5)
+
+iphoneknn
+k-Nearest Neighbors 
+
+2805 samples
+  59 predictor
+   7 classes: '[-Inf, -50)', '[ -50, -10)', '[ -10,  -1)', '[  -1,   1)', '[   1,  10)', '[  10,  50)', '[  50, Inf]' 
+
+Pre-processing: centered (59), scaled (59) 
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 2525, 2523, 2524, 2526, 2525, 2523, ... 
+Resampling results across tuning parameters:
+
+  k   Accuracy   Kappa    
+   5  0.9303775  0.8604920
+   7  0.9255294  0.8496362
+   9  0.9170786  0.8312264
+  11  0.9095218  0.8149622
+  13  0.9058154  0.8065664
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was k = 5. 
+
+#kNN predict function
+knnpredict=predict(SurPlsFit2,SurTesting)
+
+#kNN postresample 
+postResample(knnpredict,SurTesting$brand)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#kNN classifier
+
+galaxyknn=train(galaxySentiment ~., data = galaxy4ktraining, method="knn", trControl=ctrl2,preProcess=c("center","scale"),tuneLength=5)
+
+galaxyknn
+k-Nearest Neighbors 
+
+2803 samples
+  59 predictor
+   7 classes: '[-Inf, -50)', '[ -50, -10)', '[ -10,  -1)', '[  -1,   1)', '[   1,  10)', '[  10,  50)', '[  50, Inf]' 
+
+Pre-processing: centered (59), scaled (59) 
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 2522, 2523, 2522, 2523, 2523, 2522, ... 
+Resampling results across tuning parameters:
+
+  k   Accuracy   Kappa    
+   5  0.9566920  0.8612259
+   7  0.9460639  0.8252465
+   9  0.9393946  0.8014762
+  11  0.9347194  0.7835688
+  13  0.9302206  0.7648669
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was k = 5. 
+
+#kNN predict function
+knnpredict=predict(SurPlsFit2,SurTesting)
+
+#kNN postresample 
+postResample(knnpredict,SurTesting$brand)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#RandomForest classifier with 200 trees
+
+iphoneforest=train(iphoneSentiment~.,data=iphone4ktraining,method = "rf",trControl=ctrl2,ntree=200)
+
+iphoneforest
+
+2805 samples
+  59 predictor
+   7 classes: '[-Inf, -50)', '[ -50, -10)', '[ -10,  -1)', '[  -1,   1)', '[   1,  10)', '[  10,  50)', '[  50, Inf]' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 2525, 2524, 2525, 2524, 2524, 2525, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy   Kappa     
+   2    0.6838566  0.02393815
+  30    0.9862116  0.97299522
+  59    0.9881703  0.97682178
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 59. 
+
+\\\\\\\\\\\\\\\\\\\\\\\\
+
+#RandomForest classifier with 500 trees
+
+iphoneforest=train(iphoneSentiment~.,data=iphone4ktraining,method = "rf",trControl=ctrl2,ntree=500)
+
+2805 samples
+  59 predictor
+   7 classes: '[-Inf, -50)', '[ -50, -10)', '[ -10,  -1)', '[  -1,   1)', '[   1,  10)', '[  10,  50)', '[  50, Inf]' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 2524, 2524, 2524, 2524, 2525, 2522, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy   Kappa     
+   2    0.6833929  0.02016372
+  30    0.9863064  0.97312566
+  59    0.9880897  0.97662893
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 59.
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#RandomForest classifier with 200 trees
+
+galaxyforest=train(galaxySentiment~.,data=galaxy4ktraining,method = "rf",trControl=ctrl2,ntree=200)
+
+galaxyforest
+
+Random Forest 
+
+2803 samples
+  59 predictor
+   7 classes: '[-Inf, -50)', '[ -50, -10)', '[ -10,  -1)', '[  -1,   1)', '[   1,  10)', '[  10,  50)', '[  50, Inf]' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 2523, 2523, 2524, 2523, 2521, 2524, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy   Kappa     
+   2    0.8285838  0.08099303
+  30    0.9859812  0.95578493
+  59    0.9867665  0.95825636
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 59.
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+galaxyforest=train(galaxySentiment~.,data=galaxy4ktraining,method = "rf",trControl=ctrl2,ntree=500)
+
+galaxyforest
+
+Random Forest 
+
+2803 samples
+  59 predictor
+   7 classes: '[-Inf, -50)', '[ -50, -10)', '[ -10,  -1)', '[  -1,   1)', '[   1,  10)', '[  10,  50)', '[  50, Inf]' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 2525, 2524, 2521, 2523, 2522, 2523, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy   Kappa     
+   2    0.8284759  0.08054638
+  30    0.9860215  0.95596781
+  59    0.9869474  0.95885683
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 59. 
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#SVM for iphone
+
+iphonesvmmodel = svm(iphoneSentiment ~ ., data=iphone4ktraining)
+
+iphonesvmpredicted = predict(iphonesvmmodel, iphone4ktesting)
+
+iphonesvmmodel
+
+Call:
+svm(formula = iphoneSentiment ~ ., data = iphone4ktraining)
+
+
+Parameters:
+   SVM-Type:  C-classification 
+ SVM-Kernel:  radial 
+       cost:  1 
+      gamma:  0.01694915 
+
+Number of Support Vectors:  2691
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#SVM for galaxy
+
+galaxysvmmodel = svm(galaxySentiment ~ ., data=galaxy4ktraining)
+
+galaxysvmpredicted = predict(galaxysvmmodel, galaxy4ktesting)
+
+galaxysvmmodel
+
+Call:
+svm(formula = galaxySentiment ~ ., data = galaxy4ktraining)
+
+
+Parameters:
+   SVM-Type:  C-classification 
+ SVM-Kernel:  radial 
+       cost:  1 
+      gamma:  0.01694915 
+
+Number of Support Vectors:  2609
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#C5.0 for iphone
+
+iphonec50v1=C5.0(iphoneSentiment~., data=iphone4ktraining)
+
+iphonec50v1
+
+Call:
+C5.0.formula(formula = iphoneSentiment ~ ., data = iphone4ktraining)
+
+Classification Tree
+Number of samples: 2805 
+Number of predictors: 59 
+
+Tree size: 49 
+
+Non-standard options: attempt to group attributes
+
+summary(iphonec50v1)
+
+Call:
+C5.0.formula(formula = iphoneSentiment ~ ., data = iphone4ktraining)
+
+
+C5.0 [Release 2.07 GPL Edition]  	Wed Apr 19 16:27:54 2017
+-------------------------------
+
+Class specified by attribute `outcome'
+
+Read 2805 cases (60 attributes) from undefined.data
+
+Decision tree:
+
+iphonedisneg > 0:
+:...iphonedisneg <= 1:
+:   :...iphonecamneg <= 0: [ -10, -1) (91/4)
+:   :   iphonecamneg > 0: [ -50, -10) (5)
+:   iphonedisneg > 1:
+:   :...iphonedisneg <= 6: [ -50, -10) (32/2)
+:       iphonedisneg > 6: [-Inf, -50) (7)
+iphonedisneg <= 0:
+:...iphonecamneg > 0:
+    :...iphonecamneg <= 1: [ -10, -1) (36)
+    :   iphonecamneg > 1: [ -50, -10) (9/2)
+    iphonecamneg <= 0:
+    :...iphonedisunc > 0:
+        :...iphoneperpos > 0:
+        :   :...iphoneperpos <= 4: [ 10, 50) (14)
+        :   :   iphoneperpos > 4: [ 50, Inf] (7)
+        :   iphoneperpos <= 0:
+        :   :...iphonecampos > 0: [ 10, 50) (6/1)
+        :       iphonecampos <= 0:
+        :       :...iphonedispos > 0: [ 10, 50) (2)
+        :           iphonedispos <= 0:
+        :           :...iphonedisunc <= 6: [ 1, 10) (85)
+        :               iphonedisunc > 6: [ 10, 50) (2)
+        iphonedisunc <= 0:
+        :...iphoneperunc > 0:
+            :...sonyperneg > 0: [ -10, -1) (4/1)
+            :   sonyperneg <= 0:
+            :   :...iphoneperneg > 3: [ -50, -10) (3/1)
+            :       iphoneperneg <= 3:
+            :       :...iphonedispos <= 0: [ 1, 10) (67)
+            :           iphonedispos > 0:
+            :           :...iphoneperneg <= 0: [ 10, 50) (11/1)
+            :               iphoneperneg > 0: [ 1, 10) (4)
+            iphoneperunc <= 0:
+            :...iphoneperneg > 0:
+                :...iphoneperneg <= 1:
+                :   :...iphonedispos <= 0:
+                :   :   :...iphoneperpos <= 0: [ -10, -1) (40/1)
+                :   :   :   iphoneperpos > 0: [ -1, 1) (3)
+                :   :   iphonedispos > 0:
+                :   :   :...iphonedispos <= 1: [ -1, 1) (7)
+                :   :       iphonedispos > 1:
+                :   :       :...iphonedispos <= 5: [ 10, 50) (10/1)
+                :   :           iphonedispos > 5: [ 50, Inf] (2)
+                :   iphoneperneg > 1:
+                :   :...iphonedispos > 2: [ 10, 50) (6/3)
+                :       iphonedispos <= 2:
+                :       :...htcphone > 0: [-Inf, -50) (2)
+                :           htcphone <= 0:
+                :           :...iphoneperneg <= 5: [ -50, -10) (27)
+                :               iphoneperneg > 5: [-Inf, -50) (4/1)
+                iphoneperneg <= 0:
+                :...iosperneg > 0:
+                    :...iosperneg <= 1: [ -10, -1) (31/5)
+                    :   iosperneg > 1:
+                    :   :...iphoneperpos <= 0:
+                    :       :...iosperneg <= 7: [ -50, -10) (9)
+                    :       :   iosperneg > 7: [-Inf, -50) (3)
+                    :       iphoneperpos > 0:
+                    :       :...iphoneperpos <= 6: [ -1, 1) (4/1)
+                    :           iphoneperpos > 6: [ 50, Inf] (2)
+                    iosperneg <= 0:
+                    :...iphoneperpos > 0:
+                        :...samsungcampos > 1: [ 50, Inf] (4)
+                        :   samsungcampos <= 1:
+                        :   :...iphoneperpos <= 4: [ 10, 50) (113/1)
+                        :       iphoneperpos > 4: [ 50, Inf] (7)
+                        iphoneperpos <= 0:
+                        :...iphonedispos > 0:
+                            :...iphonedispos <= 4: [ 10, 50) (113)
+                            :   iphonedispos > 4: [ 50, Inf] (5)
+                            iphonedispos <= 0:
+                            :...iosperpos > 0:
+                                :...iosperpos <= 4: [ 10, 50) (47/1)
+                                :   iosperpos > 4: [ 50, Inf] (11)
+                                iosperpos <= 0:
+                                :...iphonecampos > 0:
+                                    :...iphonecampos <= 4: [ 10, 50) (52)
+                                    :   iphonecampos > 4: [ 50, Inf] (5)
+                                    iphonecampos <= 0:
+                                    :...iphonecamunc > 0: [ 1, 10) (17)
+                                        iphonecamunc <= 0:
+                                        :...iosperunc <= 0: [ -1, 1) (1890)
+                                            iosperunc > 0: [ 1, 10) (6)
+
+
+Evaluation on training data (2805 cases):
+
+	    Decision Tree   
+	  ----------------  
+	  Size      Errors  
+
+	    43   26( 0.9%)   <<
+
+
+	   (a)   (b)   (c)   (d)   (e)   (f)   (g)    <-classified as
+	  ----  ----  ----  ----  ----  ----  ----
+	    15     1     1                 1          (a): class [-Inf, -50)
+	     1    80     2                 1          (b): class [ -50, -10)
+	               191     1                      (c): class [ -10, -1)
+	                 4  1903           2          (d): class [ -1, 1)
+	                 1         179                (e): class [ 1, 10)
+	           3     2               368          (f): class [ 10, 50)
+	           1     1                 4    43    (g): class [ 50, Inf]
+
+
+	Attribute usage:
+
+	100.00%	iphonedisneg
+	 98.61%	iphonecamneg
+	 93.58%	iphonedisunc
+	 89.45%	iphoneperunc
+	 89.30%	iphoneperneg
+	 87.24%	iphoneperpos
+	 86.20%	iphonedispos
+	 82.67%	iosperneg
+	 73.62%	iphonecampos
+	 72.30%	iosperpos
+	 68.20%	iphonecamunc
+	 67.59%	iosperunc
+	  4.42%	samsungcampos
+	  3.17%	sonyperneg
+	  1.18%	htcphone
+
+
+Time: 0.1 secs
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#C5.0 for galaxy
+
+galaxyc50v1=C5.0(galaxySentiment~., data=galaxy4ktraining)
+
+galaxyc50v1
+
+Call:
+C5.0.formula(formula = galaxySentiment ~ ., data = galaxy4ktraining)
+
+Classification Tree
+Number of samples: 2803 
+Number of predictors: 59 
+
+Tree size: 50 
+
+Non-standard options: attempt to group attributes
+
+summary(galaxyc50v1)
+
+Call:
+C5.0.formula(formula = galaxySentiment ~ ., data = galaxy4ktraining)
+
+
+C5.0 [Release 2.07 GPL Edition]  	Wed Apr 19 16:35:51 2017
+-------------------------------
+
+Class specified by attribute `outcome'
+
+Read 2803 cases (60 attributes) from undefined.data
+
+Decision tree:
+
+samsungperpos > 0:
+:...htcperpos > 2: [ 50, Inf] (5)
+:   htcperpos <= 2:
+:   :...iphoneperpos <= 5: [ 10, 50) (80/4)
+:       iphoneperpos > 5: [ 50, Inf] (4)
+samsungperpos <= 0:
+:...samsungcampos > 0:
+    :...samsungcampos <= 3: [ 10, 50) (75/1)
+    :   samsungcampos > 3: [ 50, Inf] (5)
+    samsungcampos <= 0:
+    :...samsungcamunc > 0:
+        :...iphonedispos > 0: [ 10, 50) (2)
+        :   iphonedispos <= 0:
+        :   :...samsungcamunc <= 1: [ 1, 10) (38/1)
+        :       samsungcamunc > 1: [ -10, -1) (4/2)
+        samsungcamunc <= 0:
+        :...samsungperunc > 0:
+            :...sonyperunc > 0: [ -10, -1) (7/1)
+            :   sonyperunc <= 0:
+            :   :...iphonedispos <= 0:
+            :       :...googleperneg <= 1: [ 1, 10) (42)
+            :       :   googleperneg > 1: [ -50, -10) (3)
+            :       iphonedispos > 0:
+            :       :...iphonedispos > 6: [ 50, Inf] (3)
+            :           iphonedispos <= 6:
+            :           :...iphoneperneg <= 3: [ 10, 50) (19/1)
+            :               iphoneperneg > 3: [ -50, -10) (3)
+            samsungperunc <= 0:
+            :...samsungdisunc > 0:
+                :...samsungperneg > 0:
+                :   :...samsungdispos <= 0: [ -50, -10) (4/1)
+                :   :   samsungdispos > 0:
+                :   :   :...samsungdispos <= 1: [ -10, -1) (8)
+                :   :       samsungdispos > 1: [ -50, -10) (2)
+                :   samsungperneg <= 0:
+                :   :...samsungdispos <= 0:
+                :       :...iphonecamneg > 1: [ -50, -10) (2)
+                :       :   iphonecamneg <= 1:
+                :       :   :...iphonedisneg <= 0: [ 1, 10) (18/1)
+                :       :       iphonedisneg > 0: [ -10, -1) (2)
+                :       samsungdispos > 0:
+                :       :...googleperunc > 3: [ -10, -1) (2/1)
+                :           googleperunc <= 3:
+                :           :...samsungdisneg <= 0: [ 10, 50) (21)
+                :               samsungdisneg > 0: [ 1, 10) (5/1)
+                samsungdisunc <= 0:
+                :...googleperpos > 0:
+                    :...samsungperneg > 0: [ -1, 1) (5)
+                    :   samsungperneg <= 0:
+                    :   :...googleperpos <= 4: [ 10, 50) (30)
+                    :       googleperpos > 4: [ 50, Inf] (3)
+                    googleperpos <= 0:
+                    :...samsungdispos > 0:
+                        :...samsungperneg > 0: [ -1, 1) (12/1)
+                        :   samsungperneg <= 0:
+                        :   :...samsungdispos <= 4: [ 10, 50) (20/2)
+                        :       samsungdispos > 4: [ 50, Inf] (2)
+                        samsungdispos <= 0:
+                        :...samsungperneg > 0:
+                            :...samsungperneg > 1: [ -50, -10) (13/1)
+                            :   samsungperneg <= 1:
+                            :   :...samsungdisneg <= 0: [ -10, -1) (12)
+                            :       samsungdisneg > 0: [ -50, -10) (9)
+                            samsungperneg <= 0:
+                            :...iphonecamneg <= 0:
+                                :...iphonedisneg <= 0:
+                                :   :...googleperneg <= 0:
+                                :   :   :...googleperunc <= 0: [ -1, 1) (2157/4)
+                                :   :   :   googleperunc > 0: [ 1, 10) (17/1)
+                                :   :   googleperneg > 0: [S1]
+                                :   iphonedisneg > 0:
+                                :   :...samsungdisneg > 0: [ -10, -1) (9/1)
+                                :       samsungdisneg <= 0:
+                                :       :...googleperneg <= 0: [ -1, 1) (86)
+                                :           googleperneg > 0: [ -10, -1) (2)
+                                iphonecamneg > 0:
+                                :...samsungcamneg <= 0: [ -1, 1) (41)
+                                    samsungcamneg > 0:
+                                    :...iphonedisneg <= 0: [S2]
+                                        iphonedisneg > 0: [S3]
+
+SubTree [S1]
+
+googleperneg <= 1: [ -10, -1) (7)
+googleperneg > 1: [ -50, -10) (6)
+
+SubTree [S2]
+
+iphonecamneg <= 1: [ -10, -1) (6)
+iphonecamneg > 1: [ -50, -10) (2)
+
+SubTree [S3]
+
+iphonedisneg <= 6: [ -50, -10) (8)
+iphonedisneg > 6: [-Inf, -50) (2)
+
+
+Evaluation on training data (2803 cases):
+
+	    Decision Tree   
+	  ----------------  
+	  Size      Errors  
+
+	    44   24( 0.9%)   <<
+
+
+	   (a)   (b)   (c)   (d)   (e)   (f)   (g)    <-classified as
+	  ----  ----  ----  ----  ----  ----  ----
+	     2     2     2           1                (a): class [-Inf, -50)
+	          50                                  (b): class [ -50, -10)
+	                54     5     1     1          (c): class [ -10, -1)
+	                    2296           3          (d): class [ -1, 1)
+	                           116     1          (e): class [ 1, 10)
+	                 1           2   239          (f): class [ 10, 50)
+	                 2                 3    22    (g): class [ 50, Inf]
+
+
+	Attribute usage:
+
+	100.00%	samsungperpos
+	 96.82%	samsungcampos
+	 93.97%	samsungcamunc
+	 92.40%	samsungperunc
+	 89.65%	samsungdisunc
+	 89.65%	samsungperneg
+	 88.30%	samsungdispos
+	 87.37%	googleperpos
+	 84.37%	iphonecamneg
+	 82.84%	iphonedisneg
+	 82.77%	googleperneg
+	 78.56%	googleperunc
+	  5.14%	samsungdisneg
+	  4.07%	iphonedispos
+	  3.18%	htcperpos
+	  3.00%	iphoneperpos
+	  2.75%	sonyperunc
+	  2.10%	samsungcamneg
+	  0.78%	iphoneperneg
+
+
+Time: 0.1 secs
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#kNN Resample for iPhone
+
+iphonepredict=predict(iphoneknn,iphone4ktesting)
+
+iphoneresamp=postResample(iphonepredict,iphone4ktesting$iphoneSentiment)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#kNN Resample for Galaxy
+
+galaxypredict=predict(galaxyknn,galaxy4ktesting)
+
+galaxyresamp=postResample(galaxypredict,galaxy4ktesting$iphoneSentiment)
+
+\\\\\\\\\\\\\\\\\\\\\
+
+#Resample testing for iPhone kNN
+
+iphoneresamp
+
+ Accuracy     Kappa 
+0.9364017 0.8718323 
+
+\\\\\\\\\\\\\\\\\\
+
+#Resample testing for Galaxy kNN 
+
+galaxyresamp
+
+ Accuracy     Kappa 
+0.9557226 0.8568250 
+
+\\\\\\\\\\\\\\\\\\\\\
+
+#Resample testing for iPhone C5.0 
+
+
+
+\\\\\\\\\\\\\\\\\\\
+
+
+#Resample testing for Galaxy C5.0
+
+Galaxypredictc5=predict(galaxyc50v1,galaxy4ktesting)
+
+Galaxyresampc5=postResample(galaxypredictc5,galaxy4ktesting$iphoneSentiment)
+
+
+
+\\\\\\\\\\\\\\\\\\\\\\\
+
+
+
+
+
+
+
+

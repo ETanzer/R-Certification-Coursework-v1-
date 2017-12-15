@@ -1,0 +1,217 @@
+# Created by Edward Tanzer
+# March 2017
+
+#Packages to use: mlbench, caret,class,e1071
+
+#Survey_Key_and_Complete_Responses_excel brand attribute changed to reflect Acer and Sony choices by customers
+
+Sur_Complete=Survey_Key_and_Complete_Responses_excel
+
+#Changing data type for brand to facto for classification use
+Sur_Complete$brand=as.factor(Sur_Complete$brand)
+
+SurTrain=createDataPartition(y=Sur_Complete$brand, p=.75,list = FALSE)
+
+SurTraining=Sur_Complete[SurTrain,]
+
+SurTesting=Sur_Complete[-SurTrain,]
+
+ctrl2=trainControl(method = "repeatedcv",number=10, repeats = 10)
+
+#kNN classifier
+
+SurPlsFit2=train(brand ~., data = SurTraining, method="knn", trControl=ctrl2,preProcess=c("center","scale"),tuneLength=5)
+
+SurPlsFit2
+k-Nearest Neighbors 
+
+7501 samples
+   6 predictor
+   2 classes: 'Acer', 'Sony' 
+
+Pre-processing: centered (6), scaled (6) 
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 6750, 6751, 6751, 6751, 6751, 6751, ... 
+Resampling results across tuning parameters:
+
+  k   Accuracy   Kappa    
+   5  0.8461277  0.6729878
+   7  0.8568596  0.6954726
+   9  0.8630185  0.7082401
+  11  0.8666712  0.7163541
+  13  0.8690437  0.7215956
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was k = 13.
+
+#kNN classifier take 2
+SurPlsFit2=train(brand ~., data = SurTraining, method="knn", trControl=ctrl2,preProcess=c("center","scale"),tuneLength=20)
+
+SurPlsFit2
+k-Nearest Neighbors 
+
+7501 samples
+   6 predictor
+   2 classes: 'Acer', 'Sony' 
+
+Pre-processing: centered (6), scaled (6) 
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 6750, 6751, 6751, 6751, 6750, 6751, ... 
+Resampling results across tuning parameters:
+
+  k   Accuracy   Kappa    
+   5  0.8457021  0.6719411
+   7  0.8557133  0.6928167
+   9  0.8626059  0.7074061
+  11  0.8652460  0.7133933
+  13  0.8688187  0.7209303
+  15  0.8670195  0.7172123
+  17  0.8695917  0.7226497
+  19  0.8706584  0.7247261
+  21  0.8700718  0.7232794
+  23  0.8695657  0.7220913
+  25  0.8698188  0.7224273
+  27  0.8698722  0.7224796
+  29  0.8706852  0.7242288
+  31  0.8696855  0.7220049
+  33  0.8693126  0.7210324
+  35  0.8700051  0.7224506
+  37  0.8689790  0.7201395
+  39  0.8678194  0.7177437
+  41  0.8665391  0.7148080
+  43  0.8658727  0.7132022
+
+#kNN predict function
+knnpredict=predict(SurPlsFit2,SurTesting)
+
+#kNN postresample 
+postResample(knnpredict,SurTesting$brand)
+ Accuracy     Kappa 
+0.1908316 0.0000000 
+
+
+#RandomForest classifier with 200 trees
+SurForest=train(brand~.,data=SurTraining,method = "rf",trControl=ctrl2,ntree=200)
+SurForest
+Random Forest 
+
+7501 samples
+   6 predictor
+   2 classes: 'Acer', 'Sony' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 6751, 6752, 6750, 6751, 6751, 6752, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy   Kappa    
+  2     0.9201705  0.8308856
+  4     0.9197839  0.8297585
+  6     0.9144779  0.8184431
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 2. 
+
+ 
+#RandomForest classifier with 500 trees
+SurForest=train(brand~.,data=SurTraining,method = "rf",trControl=ctrl2,ntree=500)
+SurForest
+Random Forest 
+
+7501 samples
+   6 predictor
+   2 classes: 'Acer', 'Sony' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 6752, 6751, 6752, 6751, 6751, 6750, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy   Kappa    
+  2     0.9238490  0.8383332
+  4     0.9226893  0.8356925
+  6     0.9198764  0.8296487
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 2. 
+
+
+#RandomForest classifier with 700 trees
+SurForest=train(brand~.,data=SurTraining,method = "rf",trControl=ctrl2,ntree=700)
+SurForest
+Random Forest 
+
+7501 samples
+   6 predictor
+   2 classes: 'Acer', 'Sony' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 6751, 6750, 6751, 6751, 6751, 6751, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy   Kappa    
+  2     0.9207965  0.8322378
+  4     0.9205035  0.8312833
+  6     0.9157446  0.8211190
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 2.  
+
+#RandomForest classifier with 1,000 trees(final version)
+SurForest=train(brand~.,data=SurTraining,method = "rf",trControl=ctrl2,ntree=1000)
+plot(SurForest)
+SurForest
+Random Forest 
+
+7501 samples
+   6 predictor
+   2 classes: 'Acer', 'Sony' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+Summary of sample sizes: 6751, 6751, 6751, 6751, 6750, 6751, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy   Kappa    
+  2     0.9203436  0.8312683
+  4     0.9199171  0.8300543
+  6     0.9158242  0.8213013
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 2. 
+
+
+ForestPredict=predict(SurForest,SurTesting)
+
+ForestResamp=postResample(ForestPredict,SurTesting$brand)
+ForestResamp
+ Accuracy     Kappa 
+0.9187675 0.8272415 
+
+#SurveyIncomplete is customer questionnaire with missing brand attribute data.
+SurveyIncom2=SurveyIncomplete
+
+#Changing survey data types
+SurveyIncom2$age=as.numeric(SurveyIncom2$age)
+SurveyIncom2$elevel=as.numeric(SurveyIncom2$elevel)
+SurveyIncom2$car=as.numeric(SurveyIncom2$car)
+SurveyIncom2$zipcode=as.numeric(SurveyIncom2$zipcode)
+SurveyIncom2$credit=as.numeric(SurveyIncom2$credit)
+SurveyIncom2$brand=as.factor(SurveyIncom2$brand)
+
+SurIncPred=predict(SurForest,SurveyIncom2)
+
+#Total of Acer and Sony branded sales
+summary(Sur_Complete$brand)
+Acer Sony 
+3783 6217 
+
+
+#Total of Acer and Sony predicted sales
+summary(SurIncPred)
+Acer Sony 
+1905 3095
+
+#Export projected survey result data
+write.csv(SurIncPred,"SurveyIncompleteExport.csv")

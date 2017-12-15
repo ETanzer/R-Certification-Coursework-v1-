@@ -1,0 +1,259 @@
+#TI building analysis
+
+hometable = trainV2
+
+tibuilding = filter(hometable, Building == "TI")
+
+#TI identifier variable
+
+tibuilding$locID = paste(tibuilding$USERID,tibuilding$PHONEID,tibuilding$BUILDINGID,tibuilding$FLOOR,tibuilding$SPACEID,tibuilding$RELATIVEPOSITION)
+
+#Remove unused columns
+
+tibuilding$BUILDINGID = NULL
+tibuilding$FLOOR = NULL
+tibuilding$SPACEID = NULL
+tibuilding$RELATIVEPOSITION = NULL
+tibuilding$USERID = NULL
+tibuilding$PHONEID = NULL
+tibuilding$LONGITUDE = NULL
+tibuilding$LATITUDE = NULL
+tibuilding$Building = NULL
+tibuilding$TIMESTAMP = NULL
+
+#Count number of columns
+
+ncol(tibuilding)
+
+coll = c(1)
+
+#Changing unique identifier data class as factor
+
+tibuilding[coll] = lapply(tibuilding[coll], as.factor)
+
+sapply(tibuilding, levels)
+
+uniquelength = sapply(tibuilding,function(x) length(unique(x)))
+
+tibuilding = subset(tibuilding, select=uniquelength>1)
+
+#Create training and testing data sets
+
+set.seed(123)
+
+ti_train=createDataPartition(y=tibuilding$locID, p=.70,list = FALSE)
+
+ti_training=tibuilding[ti_train,]
+
+ti_testing=tibuilding[-ti_train,]
+
+
+#Random Forest
+
+ctrl2=trainControl(method = "repeatedcv",number=10, repeats = 10)
+
+ti_forest=train(locID~.,data=ti_training,method = "rf",trControl=ctrl2,ntree=20)
+
+ti_svmpredicted = predict(ti_forest, ti_testing)
+
+
+#KNN
+
+ctrl2=trainControl(method = "repeatedcv",number=10, repeats = 10)
+
+ti_knn = train(locID ~., data = ti_training, method="knn", trControl=ctrl2,preProcess=c("center","scale"),tuneLength=5)
+
+
+#kNN predict function
+
+ti_knnpredict=predict(ti_knn,ti_testing)
+
+#kNN postresample 
+
+ti_postResample(ti_knnpredict,ti_testing$locID)
+
+ti_forest=train(locID~.,data=ti_training,method = "rf",trControl=ctrl2,ntree=30)
+
+
+#SVM for ti_training
+
+ti_svmmodel = svm(locID ~ ., data=ti_training)
+
+#SVM resample for kappa and accuracy
+
+ti_svmpredicted = predict(ti_svmmodel, ti_testing)
+
+confusionMatrix(ti_training$locID, predict(ti_svmmodel))
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#TD building analysis
+
+hometable = trainV2
+
+tdbuilding = filter(hometable, Building == "TD")
+
+#TD identifier variable
+
+tdbuilding$locID = paste(tdbuilding$USERID,tdbuilding$PHONEID,tdbuilding$BUILDINGID,tdbuilding$FLOOR,tdbuilding$SPACEID,tdbuilding$RELATIVEPOSITION)
+
+#Remove unused columns
+
+tdbuilding$BUILDINGID = NULL
+tdbuilding$FLOOR = NULL
+tdbuilding$SPACEID = NULL
+tdbuilding$RELATIVEPOSITION = NULL
+tdbuilding$USERID = NULL
+tdbuilding$PHONEID = NULL
+tdbuilding$LONGITUDE = NULL
+tdbuilding$LATITUDE = NULL
+tdbuilding$Building = NULL
+tdbuilding$TIMESTAMP = NULL
+
+#Count number of columns
+
+ncol(tdbuilding)
+
+coll = c(1)
+
+#Changing unique identifier data class as factor
+
+tdbuilding[coll] = lapply(tdbuilding[coll], as.factor)
+
+sapply(tdbuilding, levels)
+
+uniquelength = sapply(tdbuilding,function(x) length(unique(x)))
+tdbuilding = subset(tdbuilding, select=uniquelength>1)
+
+#Create training and testing data sets
+
+set.seed(123)
+
+td_train=createDataPartition(y=tdbuilding$locID, p=.70,list = FALSE)
+
+td_training=tibuilding[td_train,]
+
+td_testing=tibuilding[-td_train,]
+
+
+#Random Forest for td_training
+
+ctrl2=trainControl(method = "repeatedcv",number=10, repeats = 10)
+
+td_forest=train(locID~.,data=td_training,method = "rf",trControl=ctrl2,ntree=25)
+
+
+#KNN Classifier for td_training
+
+td_knn = train(locID ~., data = td_training, method="knn", trControl=ctrl2,preProcess=c("center","scale"),tuneLength=5)
+
+
+#SVM for td_training
+
+td_svmmodel = svm(locID ~ ., data=td_training)
+
+td_svmpredict=predict(td_svmmodel,td_testing)
+
+#SVM resample for kappa and accuracy
+
+tdsvmResample = postResample(td_svmpredict,td_testing$locID)
+
+
+\\\\\\\\\\\\\\\\\\\\\\\
+
+
+#TC Data Analysis
+
+hometable = trainV2
+
+tcbuilding = filter(hometable, Building == "TC")
+
+#TC identifier variable
+
+tcbuilding$locID = paste(tcbuilding$USERID,tcbuilding$PHONEID,tcbuilding$BUILDINGID,tcbuilding$FLOOR,tcbuilding$SPACEID,tcbuilding$RELATIVEPOSITION)
+
+#Remove unused columns
+
+tcbuilding$BUILDINGID = NULL
+tcbuilding$FLOOR = NULL
+tcbuilding$SPACEID = NULL
+tcbuilding$RELATIVEPOSITION = NULL
+tcbuilding$USERID = NULL
+tcbuilding$PHONEID = NULL
+tcbuilding$LONGITUDE = NULL
+tcbuilding$LATITUDE = NULL
+tcbuilding$Building = NULL
+tcbuilding$TIMESTAMP = NULL
+
+#Count number of columns
+
+ncol(tcbuilding)
+
+coll = c(1)
+
+#Changing unique identifier data class as factor
+
+tcbuilding[coll] = lapply(tcbuilding[coll], as.factor)
+
+sapply(tcbuilding, levels)
+
+uniquelength = sapply(tcbuilding,function(x) length(unique(x)))
+
+tcbuilding = subset(tcbuilding, select=uniquelength>1)
+
+#Create training and testing data sets
+
+set.seed(123)
+
+tc_train=createDataPartition(y=tcbuilding$locID, p=.70,list = FALSE)
+
+tc_training=tcbuilding[tc_train,]
+
+tc_testing=tcbuilding[-tc_train,]
+
+
+#Random Forest for tc_training
+
+ctrl2=trainControl(method = "repeatedcv",number=10, repeats = 10)
+
+tc_forest=train(locID~.,data=tc_training,method = "rf",trControl=ctrl2,ntree=25)
+
+tc_forestpredicted = predict(tc_forest, tc_testing)
+
+tc_forestResample = postResample(tc_forestpredicted,tc_testing$locID)
+
+
+#KNN for tc_training
+
+tc_knn = train(locID ~., data = tc_training, method="knn", trControl=ctrl2,preProcess=c("center","scale"),tuneLength=5)
+
+
+#kNN predict function
+
+tc_knnpredict=predict(tc_knn,tc_testing)
+
+#kNN postresample 
+tc_knnResample = postResample(tc_knnpredict,tc_testing$locID)
+
+#SVM for tc_training
+
+tc_svmmodel = svm(locID ~ ., data=tc_training)
+
+tc_svmpredict=predict(tc_svmmodel,tc_testing)
+
+#SVM resample for kappa and accuracy
+
+postResample(tc_svmpredict,tc_testing$locID)
+
+confusionMatrix(tc_trainingv3$locID, predict(tc_svmmodel))
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#Resample analysis for each buildings 
+
+ti_ModelData <- resamples(list(randomForest = ti_forest, SVM = ti_svmmodel, knn = ti_knn))
+
+td_ModelData <- resamples(list(randomForest = td_forest, SVM = td_svmmodel, knn = td_knn))
+
+tc_ModelData <- resamples(list(randomForest = tc_forest, SVM = tc_svmmodel, knn = tc_knn))
